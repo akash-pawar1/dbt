@@ -8,7 +8,7 @@ on:
 jobs:
   run-ctf:
     runs-on: ubuntu-latest
-    environment: dev   # 👈 must match the environment name in GitHub
+    environment: ctf   # 👈 must match the environment name in GitHub
 
     steps:
       - name: Checkout repo
