@@ -3,26 +3,34 @@ name: Run CTF from GCS
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   run-ctf:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout GitHub repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          project_id: dm-kingfisher
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+          python-version: "3.12"
 
-      - name: Download CTF script from GCS
+      - name: Install gsutil
         run: |
+          sudo apt-get update -y
+          sudo apt-get install -y google-cloud-sdk
+
+      - name: Write service account key
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" > sa-key.json
+
+      - name: Download ctf-entry.py from GCS
+        run: |
+          GOOGLE_APPLICATION_CREDENTIALS="${{ github.workspace }}/sa-key.json" \
           gsutil cp gs://ctf-dbt-utilities/ctf-entry.py .
 
-      - name: Run CTF script
-        run: python3 ctf-entry.py
+      - name: Run ctf-entry.py
+        run: python ctf-entry.py
