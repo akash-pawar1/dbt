@@ -1,0 +1,26 @@
+name: Run CTF from GitLab
+
+on:
+  push:
+    branches:
+      - '**'   # runs on all branches
+
+jobs:
+  run-dbt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v3
+
+      - name: Clone GitLab repo (CTF)
+        run: |
+          git clone --branch master http://$GITLAB_USER:$GITLAB_TOKEN@taiga.datametica.com/Akash.Pawar1/ctf.git ctf-repo
+        env:
+          GITLAB_USER: ${{ secrets.GITLAB_USER }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Run CTF script
+        run: |
+          cd ctf-repo/src
+          python3 ctf-entry.py
