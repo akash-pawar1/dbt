@@ -8,17 +8,23 @@ on:
 jobs:
   run-ctf:
     runs-on: ubuntu-latest
-    environment: ctf   # 👈 must match the environment name in GitHub
+    environment: ctf   # 👈 matches your environment
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Check SA secret
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Download ctf-entry.py from GCS
         run: |
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "❌ Secret not available"
-            exit 1
-          else
-            echo "✅ Secret detected"
-          fi
+          gsutil cp gs://ctf-dbt-utilities/ctf-entry.py .
+
+      - name: Run ctf-entry.py
+        run: python ctf-entry.py
