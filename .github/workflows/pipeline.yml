@@ -8,32 +8,17 @@ on:
 jobs:
   run-ctf:
     runs-on: ubuntu-latest
+    environment: dev   # 👈 must match the environment name in GitHub
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: display service account key
+      - name: Check SA secret
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}"        
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
-      - name: Install gsutil
-        run: |
-          sudo apt-get install -y google-cloud-sdk
-
-      - name: Write service account key
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > sa-key.json
-
-      - name: Download ctf-entry.py from GCS
-        run: |
-          GOOGLE_APPLICATION_CREDENTIALS="${{ github.workspace }}/sa-key.json" \
-          gsutil cp gs://ctf-dbt-utilities/ctf-entry.py .
-
-      - name: Run ctf-entry.py
-        run: python ctf-entry.py
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            echo "❌ Secret not available"
+            exit 1
+          else
+            echo "✅ Secret detected"
+          fi
