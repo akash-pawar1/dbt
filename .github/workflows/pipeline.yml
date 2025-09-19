@@ -22,9 +22,12 @@ jobs:
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Download ctf-entry.py from GCS
+      - name: Download ctf source from GCS
         run: |
           gsutil cp gs://ctf-dbt-utilities/ctf-entry.py .
 
-      - name: Run ctf-entry.py
+      - name: Run ctf
         run: python ctf-entry.py
+
+      - name: Run simulation script
+        run: bash src/run_ctf.sh
